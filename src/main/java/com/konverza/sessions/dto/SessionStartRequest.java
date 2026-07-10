@@ -1,0 +1,12 @@
+package com.konverza.sessions.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+import java.util.UUID;
+
+@Data
+public class SessionStartRequest {
+    @NotNull private UUID scenarioId;
+    @NotBlank private String vendorName;
+}
