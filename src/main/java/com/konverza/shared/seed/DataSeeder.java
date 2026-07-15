@@ -100,6 +100,8 @@ public class DataSeeder implements CommandLineRunner {
                 .avatarVoiceId("TAVUS_PERSONA_ID_PLACEHOLDER")
                 .evaluationWeights(defaultWeights)
                 .forbiddenPhrases("[\"lo que pasa es que\",\"entiendo su frustración pero\",\"no es culpa nuestra\",\"eso no depende de mí\",\"el sistema no me deja\",\"hable con otro departamento\"]")
+                .vendedorRol("Agente de Soporte y Retención")
+                .escenarioObjetivo("Retener al cliente, ofrecer solución concreta y compensación por el corte de servicio")
                 .createdBy("MANUAL")
                 .build(),
 
@@ -118,6 +120,8 @@ public class DataSeeder implements CommandLineRunner {
                 .avatarVoiceId("TAVUS_PERSONA_ID_PLACEHOLDER")
                 .evaluationWeights(defaultWeights)
                 .forbiddenPhrases("[\"todo el mundo lo usa\",\"es muy fácil\",\"en cinco minutos lo aprendés\",\"esto lo maneja hasta un nene\",\"no tiene pérdida\",\"no hay nada que aprender\"]")
+                .vendedorRol("SDR — Sales Development Representative")
+                .escenarioObjetivo("Generar interés inicial y agendar una demo gratuita de 30 días del ERP")
                 .createdBy("MANUAL")
                 .build(),
 
@@ -136,6 +140,8 @@ public class DataSeeder implements CommandLineRunner {
                 .avatarVoiceId("TAVUS_PERSONA_ID_PLACEHOLDER")
                 .evaluationWeights("{\"persuasion\":20,\"product_knowledge\":25,\"objection_handling\":30,\"fluency\":10,\"confidence\":15}")
                 .forbiddenPhrases("[\"confíe en nosotros\",\"somos los mejores del mercado\",\"todos nuestros clientes están felices\",\"eso lo podemos ver después\",\"no se preocupe por eso\",\"es un estándar de la industria\"]")
+                .vendedorRol("Account Executive")
+                .escenarioObjetivo("Cerrar contrato de consultoría presentando casos verificables y cronograma detallado")
                 .createdBy("MANUAL")
                 .build(),
 
@@ -154,6 +160,8 @@ public class DataSeeder implements CommandLineRunner {
                 .avatarVoiceId("TAVUS_PERSONA_ID_PLACEHOLDER")
                 .evaluationWeights(defaultWeights)
                 .forbiddenPhrases("[\"garantizado al 100%\",\"no hay riesgo\",\"imposible perder\",\"todos invierten en esto\",\"el gobierno lo respalda\",\"yo también invierto aquí\"]")
+                .vendedorRol("Asesor de Inversiones / Wealth Manager")
+                .escenarioObjetivo("Convencer al inversor escéptico para colocar un mínimo de $100.000 en el fondo de renta fija")
                 .createdBy("MANUAL")
                 .build()
         );

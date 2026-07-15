@@ -1,6 +1,9 @@
 package com.konverza.scenarios.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.konverza.empresa.entity.Empresa;
+import com.konverza.productos.entity.Producto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -63,6 +66,30 @@ public class Scenario {
 
     @Column(name = "forbidden_phrases", columnDefinition = "TEXT")
     private String forbiddenPhrases;
+
+    @Column(name = "vendedor_rol")
+    private String vendedorRol;
+
+    @Column(name = "escenario_objetivo", columnDefinition = "TEXT")
+    private String escenarioObjetivo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "empresa_id")
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private Empresa empresa;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "producto_id")
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private Producto producto;
+
+    /** Convenience UUID exposed in JSON for the frontend (← replaces full empresa object). */
+    @JsonProperty("empresaId")
+    public UUID getEmpresaId() { return empresa != null ? empresa.getId() : null; }
+
+    /** Convenience UUID exposed in JSON for the frontend (← replaces full producto object). */
+    @JsonProperty("productoId")
+    public UUID getProductoId() { return producto != null ? producto.getId() : null; }
 
     @Column(name = "created_by")
     private String createdBy;

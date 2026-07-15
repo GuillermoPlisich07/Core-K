@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 public class ScenarioRequest {
     @NotBlank private String name;
@@ -22,4 +24,9 @@ public class ScenarioRequest {
     private Integer maxDurationMinutes;
     private String evaluationWeights;
     private String forbiddenPhrases;
+    // Structured scenario builder fields
+    private String vendedorRol;
+    private String escenarioObjetivo;
+    private UUID empresaId;
+    private UUID productoId;
 }
