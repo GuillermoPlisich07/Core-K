@@ -32,6 +32,10 @@ public class EmpresaService {
         Empresa empresa = firstExisting().orElseGet(Empresa::new);
         empresa.setName(req.getName());
         empresa.setContext(req.getContext());
+        empresa.setDescription(req.getDescription());
+        empresa.setVision(req.getVision());
+        empresa.setObjective(req.getObjective());
+        empresa.setIndustries(req.getIndustries());
         return empresaRepository.save(empresa);
     }
 

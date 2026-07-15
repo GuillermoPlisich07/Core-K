@@ -2,7 +2,9 @@ package com.konverza.shared.exception;
 
 import com.konverza.auth.exception.AccountDisabledException;
 import com.konverza.auth.exception.EmailAlreadyExistsException;
+import com.konverza.auth.exception.InvalidAvatarFileException;
 import com.konverza.auth.exception.InvalidCredentialsException;
+import com.konverza.auth.exception.InvalidCurrentPasswordException;
 import com.konverza.auth.exception.InvalidRefreshTokenException;
 import com.konverza.auth.exception.UserNotFoundException;
 import com.konverza.empresa.exception.EmpresaNotFoundException;
@@ -17,6 +19,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -77,6 +80,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleInvalidRefreshToken(InvalidRefreshTokenException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("error", ex.getMessage(), "code", "INVALID_REFRESH_TOKEN"));
+    }
+
+    @ExceptionHandler(InvalidCurrentPasswordException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidCurrentPassword(InvalidCurrentPasswordException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", ex.getMessage(), "code", "INVALID_CURRENT_PASSWORD"));
+    }
+
+    @ExceptionHandler(InvalidAvatarFileException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidAvatarFile(InvalidAvatarFileException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", ex.getMessage(), "code", "INVALID_AVATAR_FILE"));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, String>> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", "El archivo supera el tamano maximo permitido (5MB)", "code", "FILE_TOO_LARGE"));
     }
 
     /**

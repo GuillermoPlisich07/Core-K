@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -31,6 +32,10 @@ public class ServicioService {
                 .name(req.getName())
                 .description(req.getDescription())
                 .context(req.getContext())
+                .priceRange(req.getPriceRange())
+                .keyDifferentiator(req.getKeyDifferentiator())
+                .paymentInfo(req.getPaymentInfo())
+                .tags(req.getTags() != null ? req.getTags() : Set.of())
                 .build();
         return servicioRepository.save(servicio);
     }
@@ -40,6 +45,10 @@ public class ServicioService {
         servicio.setName(req.getName());
         servicio.setDescription(req.getDescription());
         servicio.setContext(req.getContext());
+        servicio.setPriceRange(req.getPriceRange());
+        servicio.setKeyDifferentiator(req.getKeyDifferentiator());
+        servicio.setPaymentInfo(req.getPaymentInfo());
+        servicio.setTags(req.getTags() != null ? req.getTags() : Set.of());
         return servicioRepository.save(servicio);
     }
 

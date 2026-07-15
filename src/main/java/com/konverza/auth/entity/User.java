@@ -26,6 +26,20 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
+    /**
+     * columnDefinition carries an explicit DB-level DEFAULT so
+     * ddl-auto=update's ALTER TABLE ADD COLUMN succeeds against the existing
+     * users table (Postgres rejects adding a NOT NULL column with no default
+     * to a non-empty table) — same pattern as profileCompleted below.
+     */
+    @Column(name = "first_name", nullable = false, columnDefinition = "varchar(255) not null default ''")
+    @Builder.Default
+    private String firstName = "";
+
+    @Column(name = "last_name", nullable = false, columnDefinition = "varchar(255) not null default ''")
+    @Builder.Default
+    private String lastName = "";
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
@@ -40,6 +54,9 @@ public class User {
 
     @Column(name = "self_description", columnDefinition = "TEXT")
     private String selfDescription;
+
+    @Column(name = "avatar_url")
+    private String avatarUrl;
 
     /**
      * columnDefinition carries an explicit DB-level DEFAULT so

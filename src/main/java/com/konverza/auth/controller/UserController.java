@@ -1,5 +1,6 @@
 package com.konverza.auth.controller;
 
+import com.konverza.auth.dto.ChangePasswordRequest;
 import com.konverza.auth.dto.CreateUserRequest;
 import com.konverza.auth.dto.UpdateProfileRequest;
 import com.konverza.auth.dto.UpdateUserRequest;
@@ -12,8 +13,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -47,6 +50,18 @@ public class UserController {
     @Operation(summary = "Completa o edita el perfil (edad, personalidad, autodescripcion) del usuario autenticado")
     public User updateOwnProfile(@Valid @RequestBody UpdateProfileRequest req) {
         return userManagementService.updateOwnProfile(CurrentUser.id(), req);
+    }
+
+    @PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Sube o reemplaza el avatar del usuario autenticado")
+    public User uploadOwnAvatar(@RequestParam("file") MultipartFile file) {
+        return userManagementService.uploadOwnAvatar(CurrentUser.id(), file);
+    }
+
+    @PutMapping("/me/password")
+    @Operation(summary = "Cambia la contrasena del usuario autenticado (requiere la contrasena actual)")
+    public void changeOwnPassword(@Valid @RequestBody ChangePasswordRequest req) {
+        userManagementService.changeOwnPassword(CurrentUser.id(), req);
     }
 
     @PostMapping

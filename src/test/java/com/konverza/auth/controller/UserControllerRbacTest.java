@@ -41,6 +41,8 @@ class UserControllerRbacTest {
 
     private CreateUserRequest buildCreateRequest(String email) {
         CreateUserRequest req = new CreateUserRequest();
+        req.setFirstName("Test");
+        req.setLastName("User");
         req.setEmail(email);
         req.setPassword("Some-Password-1!");
         req.setRole(User.Role.EMPLOYEE);

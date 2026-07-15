@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.konverza.empresa.entity.Empresa;
 import com.konverza.productos.entity.Producto;
+import com.konverza.shared.enums.Industry;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -107,5 +108,4 @@ public class Scenario {
 
     public enum ClientPersona { ANGRY, DIFFICULT, INDIFFERENT, DEMANDING }
     public enum Difficulty { EASY, MEDIUM, HARD }
-    public enum Industry { SOFTWARE_B2B, FINANZAS, CONSULTORIA, TELCO, SEGUROS, RETAIL, SALUD, OTRO }
 }

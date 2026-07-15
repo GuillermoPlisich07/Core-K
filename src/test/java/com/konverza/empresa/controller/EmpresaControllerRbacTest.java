@@ -40,7 +40,7 @@ class EmpresaControllerRbacTest {
     }
 
     private String validBody(String name) throws Exception {
-        return objectMapper.writeValueAsString(Map.of("name", name, "context", "ctx"));
+        return objectMapper.writeValueAsString(Map.of("name", name, "context", "ctx", "industries", java.util.List.of("SOFTWARE_B2B")));
     }
 
     @Test
@@ -86,5 +86,19 @@ class EmpresaControllerRbacTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(validBody("Bloqueado")))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    @DisplayName("ADMIN gets a validation error when no industry is selected")
+    void admin_noIndustry_returnsValidationError() throws Exception {
+        String bodyWithoutIndustry = objectMapper.writeValueAsString(Map.of("name", "Konverza SA", "context", "ctx"));
+
+        mockMvc.perform(put("/api/empresa")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(bodyWithoutIndustry))
+                .andExpect(status().isBadRequest());
+
+        assertThat(empresaRepository.count()).isEqualTo(0);
     }
 }

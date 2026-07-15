@@ -4,6 +4,7 @@ import com.konverza.scenarios.dto.ScenarioExpressRequest;
 import com.konverza.scenarios.dto.ScenarioRequest;
 import com.konverza.scenarios.entity.Scenario;
 import com.konverza.scenarios.repository.ScenarioRepository;
+import com.konverza.shared.enums.Industry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -49,7 +50,7 @@ class ScenarioRbacTest {
     private ScenarioExpressRequest buildExpressRequest() {
         ScenarioExpressRequest req = new ScenarioExpressRequest();
         req.setName("Escenario express de prueba");
-        req.setIndustry(Scenario.Industry.SOFTWARE_B2B);
+        req.setIndustry(Industry.SOFTWARE_B2B);
         req.setClientPersona(Scenario.ClientPersona.DIFFICULT);
         req.setDifficulty(Scenario.Difficulty.MEDIUM);
         req.setProductName("CRM");

@@ -1,6 +1,7 @@
 package com.konverza.scenarios.dto;
 
 import com.konverza.scenarios.entity.Scenario;
+import com.konverza.shared.enums.Industry;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,7 +21,7 @@ public class ScenarioRequest {
     private String paymentInfo;
     private String faq;
     private String avatarVoiceId;
-    private Scenario.Industry industry;
+    private Industry industry;
     private Integer maxDurationMinutes;
     private String evaluationWeights;
     private String forbiddenPhrases;
