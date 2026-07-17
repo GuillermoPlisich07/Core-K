@@ -86,10 +86,7 @@ public class DashboardService {
     }
 
     private BigDecimal averageScore(List<Session> sessions) {
-        List<BigDecimal> scores = sessions.stream().map(Session::getOverallScore).filter(java.util.Objects::nonNull).toList();
-        if (scores.isEmpty()) return null;
-        return scores.stream().reduce(BigDecimal.ZERO, BigDecimal::add)
-                .divide(BigDecimal.valueOf(scores.size()), 2, RoundingMode.HALF_UP);
+        return ScoreMath.average(sessions.stream().map(Session::getOverallScore).toList());
     }
 
     private BigDecimal winRate(List<Session> sessions) {

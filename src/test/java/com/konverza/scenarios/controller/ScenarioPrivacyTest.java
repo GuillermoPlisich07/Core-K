@@ -176,6 +176,34 @@ class ScenarioPrivacyTest {
                 .andExpect(status().isOk());
     }
 
+    /**
+     * user-activity-detail-panel's narrow ADMIN/EXEC exception lives entirely
+     * in GET /api/users/{id}/activity — it must not leak into the general
+     * scenario endpoints. ADMIN gets exactly the same 404/list-exclusion as
+     * any other non-owner here.
+     */
+    @Test
+    @DisplayName("ADMIN also cannot list or fetch another user's quick scenario through the general scenario endpoints")
+    void adminCannotSeeAnotherUsersQuickScenario_throughGeneralEndpoints() throws Exception {
+        String ownerEmail = "privacy-owner-n@konverza.com";
+        seedUserAndLogin(ownerEmail, User.Role.EMPLOYEE);
+        User owner = userRepository.findByEmailIgnoreCase(ownerEmail).orElseThrow();
+        Scenario theirs = createQuickScenario("Privado N", owner, true);
+
+        String adminToken = seedUserAndLogin("privacy-admin-n@konverza.com", User.Role.ADMIN);
+
+        mockMvc.perform(get("/api/scenarios/" + theirs.getId()).header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNotFound());
+
+        MvcResult result = mockMvc.perform(get("/api/scenarios").header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andReturn();
+        var body = objectMapper.readTree(result.getResponse().getContentAsString());
+        boolean found = false;
+        for (var node : body) if (node.get("id").asText().equals(theirs.getId().toString())) found = true;
+        assertThat(found).isFalse();
+    }
+
     // ── Escenario Completo admin activate/deactivate ────────────────────────
 
     @Test

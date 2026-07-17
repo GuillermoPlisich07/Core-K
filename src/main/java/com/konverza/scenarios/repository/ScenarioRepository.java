@@ -15,4 +15,16 @@ public interface ScenarioRepository extends JpaRepository<Scenario, UUID> {
 
     /** Backs ScenarioExpirationJob's 2-month auto-disable (scenario-privacy-and-lifecycle). */
     List<Scenario> findByCreatedByAndEnabledTrueAndCreatedAtBefore(String createdBy, LocalDateTime cutoff);
+
+    /**
+     * Backs the per-user activity panel's quick-scenario list
+     * (user-activity-detail-panel) — deliberately bypasses
+     * ScenarioService.isVisibleToCurrentUser's creator-only scoping; only
+     * ever called from the ADMIN/EXEC-gated activity endpoint, never from a
+     * general scenario listing path.
+     */
+    List<Scenario> findByCreatedByUser_IdAndCreatedBy(UUID userId, String createdBy);
+
+    /** Current company-wide enabled Escenario Completo catalog (user-activity-detail-panel). */
+    List<Scenario> findByCreatedByAndEnabledTrue(String createdBy);
 }

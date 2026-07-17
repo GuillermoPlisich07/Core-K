@@ -7,6 +7,8 @@ import com.konverza.auth.dto.UpdateUserRequest;
 import com.konverza.auth.entity.User;
 import com.konverza.auth.security.CurrentUser;
 import com.konverza.auth.service.UserManagementService;
+import com.konverza.reports.dto.UserActivityResponse;
+import com.konverza.reports.service.UserActivityService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,11 +38,19 @@ import java.util.UUID;
 public class UserController {
 
     private final UserManagementService userManagementService;
+    private final UserActivityService userActivityService;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','EXEC')")
     @Operation(summary = "Lista todos los usuarios")
     public List<User> getAll() { return userManagementService.findAll(); }
+
+    @GetMapping("/{id}/activity")
+    @PreAuthorize("hasAnyRole('ADMIN','EXEC')")
+    @Operation(summary = "Resumen de actividad de un usuario: escenarios rápidos creados (con métricas) y avance en escenarios completos")
+    public UserActivityResponse getActivity(@PathVariable UUID id) {
+        return userActivityService.getUserActivity(id);
+    }
 
     @GetMapping("/me")
     @Operation(summary = "Retorna el perfil del usuario autenticado")

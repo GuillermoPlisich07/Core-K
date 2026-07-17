@@ -65,10 +65,19 @@ public class ScenarioService {
         }
     }
 
+    /**
+     * A scenario the current user can't see is indistinguishable from one
+     * that doesn't exist — both resolve to ScenarioNotFoundException (404) —
+     * so a non-owner can't tell "not found" from "not yours" via direct-ID
+     * access (scenario-privacy-and-lifecycle).
+     */
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public Scenario findById(UUID id) {
         Scenario scenario = scenarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Escenario no encontrado: " + id));
+                .orElseThrow(() -> new ScenarioNotFoundException(id));
+        if (!isVisibleToCurrentUser(scenario)) {
+            throw new ScenarioNotFoundException(id);
+        }
         org.hibernate.Hibernate.initialize(scenario.getEmpresa());
         org.hibernate.Hibernate.initialize(scenario.getProducto());
         return scenario;
@@ -133,6 +142,7 @@ public class ScenarioService {
      * admin control over them is explicitly out of scope
      * (scenario-privacy-and-lifecycle).
      */
+    @org.springframework.transaction.annotation.Transactional
     public Scenario setEnabled(UUID id, boolean enabled) {
         Scenario scenario = findById(id);
         if (!MANUAL_ORIGIN.equals(scenario.getCreatedBy())) {
