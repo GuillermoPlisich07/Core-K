@@ -15,10 +15,8 @@ public class ScenarioRequest {
     private String description;
     @NotNull private Scenario.ClientPersona clientPersona;
     @NotNull private Scenario.Difficulty difficulty;
-    private String productContext;
     private String systemPrompt;
     private String objectionsGuide;
-    private String paymentInfo;
     private String faq;
     private String avatarVoiceId;
     private Industry industry;

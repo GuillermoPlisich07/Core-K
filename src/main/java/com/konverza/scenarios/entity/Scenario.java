@@ -38,8 +38,6 @@ public class Scenario {
     @Column(nullable = false)
     private Difficulty difficulty;
 
-    @Column(name = "product_context", columnDefinition = "TEXT")
-    private String productContext;
 
     @Column(name = "system_prompt", columnDefinition = "TEXT")
     private String systemPrompt;
@@ -47,8 +45,6 @@ public class Scenario {
     @Column(name = "objections_guide", columnDefinition = "TEXT")
     private String objectionsGuide;
 
-    @Column(name = "payment_info", columnDefinition = "TEXT")
-    private String paymentInfo;
 
     @Column(columnDefinition = "TEXT")
     private String faq;
@@ -146,50 +142,25 @@ public class Scenario {
         boolean hasEntityProduct = (this.producto != null && Hibernate.isInitialized(this.producto));
         if (hasEntityProduct) {
             sb.append(this.producto.getName()).append(". ");
-            if (this.producto.getDescription() != null) {
+            if (this.producto.getDescription() != null && !this.producto.getDescription().isBlank()) {
                 sb.append(this.producto.getDescription()).append(" ");
             }
-        }
-        
-        if (this.productContext != null && this.productContext.trim().startsWith("{")) {
-            try {
-                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-                com.fasterxml.jackson.databind.JsonNode node = mapper.readTree(this.productContext);
-                
-                if (!hasEntityProduct) {
-                    if (node.has("productName") && !node.get("productName").isNull() && !node.get("productName").asText().trim().isEmpty()) {
-                        sb.append(node.get("productName").asText().trim()).append(". ");
-                    } else {
-                        sb.append("Tu Producto/Servicio. ");
-                    }
-                    if (node.has("productDescription") && !node.get("productDescription").isNull() && !node.get("productDescription").asText().trim().isEmpty()) {
-                        sb.append(node.get("productDescription").asText().trim()).append(". ");
-                    }
-                }
-                if (node.has("priceRange") && !node.get("priceRange").isNull() && !node.get("priceRange").asText().trim().isEmpty()) {
-                    sb.append("Precio: ").append(node.get("priceRange").asText().trim()).append(". ");
-                }
-                if (node.has("keyDifferentiator") && !node.get("keyDifferentiator").isNull() && !node.get("keyDifferentiator").asText().trim().isEmpty()) {
-                    sb.append("Diferencial: ").append(node.get("keyDifferentiator").asText().trim()).append(". ");
-                }
-                if (node.has("tags") && node.get("tags").isArray() && !node.get("tags").isEmpty()) {
-                    sb.append("Tags: ");
-                    java.util.List<String> tags = new java.util.ArrayList<>();
-                    for (com.fasterxml.jackson.databind.JsonNode t : node.get("tags")) {
-                        tags.add(t.asText());
-                    }
-                    sb.append(String.join(", ", tags)).append(".");
-                }
-            } catch (Exception e) {
-                if (!hasEntityProduct) sb.append("Tu Producto/Servicio. ");
-                sb.append(this.productContext);
+            if (this.producto.getPriceRange() != null && !this.producto.getPriceRange().isBlank()) {
+                sb.append("Precio: ").append(this.producto.getPriceRange().trim()).append(". ");
+            }
+            if (this.producto.getKeyDifferentiator() != null && !this.producto.getKeyDifferentiator().isBlank()) {
+                sb.append("Diferencial: ").append(this.producto.getKeyDifferentiator().trim()).append(". ");
+            }
+            if (this.producto.getTags() != null && !this.producto.getTags().isEmpty()) {
+                sb.append("Tags: ").append(String.join(", ", this.producto.getTags())).append(". ");
+            }
+            sb.append("\n");
+            if (this.producto.getPaymentInfo() != null && !this.producto.getPaymentInfo().isBlank()) {
+                sb.append("Condiciones comerciales: ").append(this.producto.getPaymentInfo().trim()).append("\n");
             }
         } else {
-            if (!hasEntityProduct) sb.append("Tu Producto/Servicio. ");
-            sb.append(this.productContext != null ? this.productContext : "");
+            sb.append("Tu Producto/Servicio.\n");
         }
-        sb.append("\n");
-        sb.append("Condiciones comerciales: ").append(this.paymentInfo != null ? this.paymentInfo : "").append("\n");
         sb.append("</CONTEXT>\n\n");
 
         sb.append("<REQUEST>\n");

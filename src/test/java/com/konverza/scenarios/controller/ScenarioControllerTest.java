@@ -33,7 +33,6 @@ class ScenarioControllerTest {
         req.setName(name);
         req.setClientPersona(Scenario.ClientPersona.DIFFICULT);
         req.setDifficulty(Scenario.Difficulty.MEDIUM);
-        req.setProductContext("Software CRM para ventas B2B");
         req.setSystemPrompt("Sos un cliente difícil que evalúa el precio.");
         return req;
     }
