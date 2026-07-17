@@ -11,6 +11,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import org.hibernate.Hibernate;
 
@@ -52,9 +54,12 @@ public class Scenario {
     @Column(name = "avatar_voice_id")
     private String avatarVoiceId;
 
-    @Enumerated(EnumType.STRING)
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "scenario_industries", joinColumns = @JoinColumn(name = "scenario_id"))
     @Column(name = "industry")
-    private Industry industry;
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private Set<Industry> industries = new HashSet<>();
 
     @Column(name = "max_duration_minutes")
     private Integer maxDurationMinutes;
@@ -122,8 +127,10 @@ public class Scenario {
           .append(" de la empresa ");
         if (this.empresa != null && Hibernate.isInitialized(this.empresa)) {
             sb.append(this.empresa.getName());
-            if (this.industry != null) {
-                sb.append(" (").append(this.industry).append(")");
+            if (this.industries != null && !this.industries.isEmpty()) {
+                java.util.List<String> indNames = new java.util.ArrayList<>();
+                for (Industry ind : this.industries) indNames.add(ind.name());
+                sb.append(" (").append(String.join(", ", indNames)).append(")");
             }
             sb.append(". ");
             if (this.empresa.getContext() != null) {
@@ -131,8 +138,10 @@ public class Scenario {
             }
         } else {
             sb.append("Tu Empresa");
-            if (this.industry != null) {
-                sb.append(" (").append(this.industry).append(")");
+            if (this.industries != null && !this.industries.isEmpty()) {
+                java.util.List<String> indNames = new java.util.ArrayList<>();
+                for (Industry ind : this.industries) indNames.add(ind.name());
+                sb.append(" (").append(String.join(", ", indNames)).append(")");
             }
             sb.append(".");
         }

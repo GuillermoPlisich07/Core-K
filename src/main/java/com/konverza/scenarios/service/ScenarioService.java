@@ -47,7 +47,7 @@ public class ScenarioService {
                 .systemPrompt(req.getSystemPrompt())
                 .objectionsGuide(req.getObjectionsGuide())
                 .faq(req.getFaq()).avatarVoiceId(req.getAvatarVoiceId())
-                .industry(req.getIndustry())
+                .industries(req.getIndustries())
                 .maxDurationMinutes(req.getMaxDurationMinutes() != null ? req.getMaxDurationMinutes() : 30)
                 .evaluationWeights(req.getEvaluationWeights())
                 .forbiddenPhrases(req.getForbiddenPhrases())
@@ -78,7 +78,7 @@ public class ScenarioService {
         s.setSystemPrompt(req.getSystemPrompt());
         s.setObjectionsGuide(req.getObjectionsGuide());
         s.setFaq(req.getFaq()); s.setAvatarVoiceId(req.getAvatarVoiceId());
-        s.setIndustry(req.getIndustry());
+        s.setIndustries(req.getIndustries());
         if (req.getMaxDurationMinutes() != null) s.setMaxDurationMinutes(req.getMaxDurationMinutes());
         s.setEvaluationWeights(req.getEvaluationWeights());
         s.setForbiddenPhrases(req.getForbiddenPhrases());

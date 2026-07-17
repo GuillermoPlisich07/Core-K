@@ -49,7 +49,7 @@ class ScenarioRbacTest {
     private ScenarioExpressRequest buildExpressRequest() {
         ScenarioExpressRequest req = new ScenarioExpressRequest();
         req.setName("Escenario express de prueba");
-        req.setIndustry(Industry.SOFTWARE_B2B);
+        req.setIndustries(java.util.Set.of(Industry.SOFTWARE_B2B));
         req.setClientPersona(Scenario.ClientPersona.DIFFICULT);
         req.setDifficulty(Scenario.Difficulty.MEDIUM);
         req.setProductName("CRM");

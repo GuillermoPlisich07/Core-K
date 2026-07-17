@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -91,7 +92,7 @@ public class DataSeeder implements CommandLineRunner {
                 .description("Un cliente furioso que lleva tres dias sin internet y amenaza con cancelar el servicio.")
                 .clientPersona(Scenario.ClientPersona.ANGRY)
                 .difficulty(Scenario.Difficulty.HARD)
-                .industry(Industry.TELCO)
+                .industries(Set.of(Industry.TELCO))
                 .maxDurationMinutes(30)
                 .systemPrompt("Sos Carlos Mendez, un cliente furioso de 45 anos. Llevas TRES DIAS sin internet y ya llamaste 5 veces al soporte sin solucion. Tu negocio depende del internet y perdiste plata por esto. Estas al borde de cancelar el contrato. Hablas en espanol rioplatense. Sos agresivo pero no grosero. Interrumpes al vendedor cuando da excusas. Si el vendedor te ofrece una solucion concreta (tecnico hoy, descuento real), bajas un poco la guardia. Nunca aceptes la primera oferta. Exigi compensacion por los dias sin servicio.")
                 .objectionsGuide("{\"objections\": [\"Tres dias sin internet y nadie me llamo\", \"El soporte tecnico es una porqueria\", \"Me voy a otra empresa\"]}")
@@ -109,7 +110,7 @@ public class DataSeeder implements CommandLineRunner {
                 .description("Un dueno de empresa que no ve la necesidad de digitalizar sus procesos.")
                 .clientPersona(Scenario.ClientPersona.INDIFFERENT)
                 .difficulty(Scenario.Difficulty.MEDIUM)
-                .industry(Industry.SOFTWARE_B2B)
+                .industries(Set.of(Industry.SOFTWARE_B2B))
                 .maxDurationMinutes(30)
                 .systemPrompt("Sos Roberto Paz, dueno de una ferreteria con 15 empleados. Tenes 58 anos y no sos muy tecnologico. Tu negocio funciona bien con planillas y papel. No ves para que cambiar lo que funciona. Hablas en espanol rioplatense. Sos educado pero desinteresado. Respondes con monosilabos si no te convencen. Si el vendedor te muestra un beneficio muy concreto en pesos (ahorro de tiempo = plata), prestas mas atencion. Tu mayor miedo es que el sistema falle justo en epoca de inventario.")
                 .objectionsGuide("{\"objections\": [\"Nosotros con planillas de Excel nos manejamos re bien\", \"No tengo tiempo para aprender software nuevo\", \"Es muy caro para lo que ofrece\"]}")
@@ -127,7 +128,7 @@ public class DataSeeder implements CommandLineRunner {
                 .description("Directora de RRHH de una empresa mediana que exige resultados medibles y ROI claro.")
                 .clientPersona(Scenario.ClientPersona.DEMANDING)
                 .difficulty(Scenario.Difficulty.HARD)
-                .industry(Industry.CONSULTORIA)
+                .industries(Set.of(Industry.CONSULTORIA))
                 .maxDurationMinutes(45)
                 .systemPrompt("Sos Valeria Torres, Directora de RRHH de una empresa de 200 personas. Sos MBA, muy analitica y exigente. Hablas en espanol rioplatense. Haces preguntas dificiles sobre metodologia, tiempos y metricas. Esperas respuestas concretas con numeros. Si el vendedor es vago, lo presionas mas. Tuviste una mala experiencia con una consultora anterior que prometio mucho y entrego poco. Solo cerras si el vendedor puede darte casos de exito verificables y un cronograma detallado.")
                 .objectionsGuide("{\"objections\": [\"Que ROI concreto me garantizan?\", \"Necesito metricas claras antes de contratar\", \"Tuvimos una consultora antes y fue un fracaso\"]}")
@@ -145,7 +146,7 @@ public class DataSeeder implements CommandLineRunner {
                 .description("Un inversor esceptico que desconfia de los productos financieros luego de malas experiencias.")
                 .clientPersona(Scenario.ClientPersona.DIFFICULT)
                 .difficulty(Scenario.Difficulty.MEDIUM)
-                .industry(Industry.FINANZAS)
+                .industries(Set.of(Industry.FINANZAS))
                 .maxDurationMinutes(30)
                 .systemPrompt("Sos Marcelo Gimenez, inversor particular de 52 anos. Perdiste dinero en 2001 y con una financiera en 2019. Desconfias de todos los productos financieros. Hablas en espanol rioplatense. Haces preguntas tecnicas sobre regulacion, garantias y riesgo. Buscas contradicciones en lo que dice el vendedor. Si el vendedor menciona la CNV, BCRA o garantias concretas, bajas un poco la guardia. Necesitas sentir que el vendedor entiende tus miedos antes de considerar invertir.")
                 .objectionsGuide("{\"objections\": [\"Ya me estafaron con un fondo parecido\", \"Esta regulado por la CNV?\", \"El plazo fijo me da mas tranquilidad\"]}")

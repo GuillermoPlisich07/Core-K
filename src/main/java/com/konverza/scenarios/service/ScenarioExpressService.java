@@ -40,7 +40,7 @@ public class ScenarioExpressService {
 
         Scenario scenario = Scenario.builder()
                 .name(req.getName())
-                .industry(req.getIndustry())
+                .industries(req.getIndustries())
                 .clientPersona(req.getClientPersona())
                 .difficulty(req.getDifficulty())
                 .maxDurationMinutes(30)
