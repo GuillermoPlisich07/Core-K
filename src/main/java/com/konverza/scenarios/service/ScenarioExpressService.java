@@ -1,5 +1,8 @@
 package com.konverza.scenarios.service;
 
+import com.konverza.auth.entity.User;
+import com.konverza.auth.exception.UserNotFoundException;
+import com.konverza.auth.repository.UserRepository;
 import com.konverza.auth.security.CurrentUser;
 import com.konverza.scenarios.dto.ScenarioExpressRequest;
 import com.konverza.scenarios.entity.Scenario;
@@ -22,14 +25,20 @@ public class ScenarioExpressService {
 
     private final WebClient groqClient;
     private final ScenarioRepository scenarioRepository;
+    private final UserRepository userRepository;
+    private final ScenarioService scenarioService;
     private final ObjectMapper objectMapper;
 
     public ScenarioExpressService(
             @Qualifier("groqClient") WebClient groqClient,
             ScenarioRepository scenarioRepository,
+            UserRepository userRepository,
+            ScenarioService scenarioService,
             ObjectMapper objectMapper) {
         this.groqClient = groqClient;
         this.scenarioRepository = scenarioRepository;
+        this.userRepository = userRepository;
+        this.scenarioService = scenarioService;
         this.objectMapper = objectMapper;
     }
 
@@ -38,6 +47,9 @@ public class ScenarioExpressService {
         String rawJson = callGroq(prompt);
         Map<?, ?> parsed = parseWithRetry(prompt, rawJson);
 
+        User owner = userRepository.findById(CurrentUser.id())
+                .orElseThrow(() -> new UserNotFoundException(CurrentUser.id()));
+
         Scenario scenario = Scenario.builder()
                 .name(req.getName())
                 .industry(req.getIndustry())
@@ -45,7 +57,7 @@ public class ScenarioExpressService {
                 .difficulty(req.getDifficulty())
                 .maxDurationMinutes(30)
                 .createdBy("EXPRESS_AI")
-                .ownerName(req.getOwnerName())
+                .createdByUser(owner)
                 .systemPrompt(asString(parsed, "system_prompt"))
                 .productContext(asString(parsed, "product_context"))
                 .objectionsGuide(toJsonString(parsed.get("objections_guide")))
@@ -62,10 +74,12 @@ public class ScenarioExpressService {
      * Shared by the Express review screen (EMPLOYEE, own AI-generated draft)
      * and the Detallado edit screen (ADMIN) — see ScenarioService.update's
      * javadoc. Same ownership rule: EMPLOYEE only on EXPRESS_AI scenarios.
+     * Goes through ScenarioService.findById so the same visibility scoping
+     * (creator-only for quick scenarios, 404 for others) applies here too
+     * (scenario-privacy-and-lifecycle).
      */
     public String regenerateSection(UUID scenarioId, String section) {
-        Scenario scenario = scenarioRepository.findById(scenarioId)
-                .orElseThrow(() -> new RuntimeException("Escenario no encontrado: " + scenarioId));
+        Scenario scenario = scenarioService.findById(scenarioId);
         if ("EMPLOYEE".equals(CurrentUser.role()) && !"EXPRESS_AI".equals(scenario.getCreatedBy())) {
             throw new AccessDeniedException("Solo se pueden regenerar secciones de escenarios propios creados con el flujo Express");
         }

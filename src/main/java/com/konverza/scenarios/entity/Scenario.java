@@ -2,6 +2,7 @@ package com.konverza.scenarios.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.konverza.auth.entity.User;
 import com.konverza.empresa.entity.Empresa;
 import com.konverza.productos.entity.Producto;
 import com.konverza.shared.enums.Industry;
@@ -95,8 +96,41 @@ public class Scenario {
     @Column(name = "created_by")
     private String createdBy;
 
-    @Column(name = "owner_name")
-    private String ownerName;
+    /**
+     * Real, server-verified owner of an Escenario Rápido — set from
+     * CurrentUser.id() at creation, never from client input
+     * (scenario-privacy-and-lifecycle). Escenarios Completos (MANUAL) leave
+     * this null; they stay creator-agnostic and company-wide by design.
+     * EAGER (unlike empresa/producto below): getOwnerName() reads
+     * firstName/lastName, not just the FK id, and open-in-view is disabled,
+     * so a LAZY proxy would throw once accessed during response
+     * serialization, after the request's Hibernate session has closed.
+     */
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "created_by_user_id")
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private User createdByUser;
+
+    /** Read-only display name derived from the real owner — replaces the old client-writable ownerName column. */
+    @JsonProperty("createdByUserId")
+    public UUID getCreatedByUserId() { return createdByUser != null ? createdByUser.getId() : null; }
+
+    @JsonProperty("ownerName")
+    public String getOwnerName() {
+        if (createdByUser == null) return null;
+        String fullName = (createdByUser.getFirstName() + " " + createdByUser.getLastName()).trim();
+        return !fullName.isEmpty() ? fullName : createdByUser.getEmail();
+    }
+
+    /**
+     * columnDefinition carries an explicit DB-level DEFAULT so
+     * ddl-auto=update's ALTER TABLE ADD COLUMN succeeds against the existing
+     * scenarios table (Postgres rejects adding a NOT NULL column with no
+     * default to a non-empty table) — same pattern as User.profileCompleted.
+     */
+    @Column(nullable = false, columnDefinition = "boolean not null default true")
+    @Builder.Default
+    private boolean enabled = true;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

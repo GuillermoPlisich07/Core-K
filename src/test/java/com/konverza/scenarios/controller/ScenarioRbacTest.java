@@ -1,5 +1,7 @@
 package com.konverza.scenarios.controller;
 
+import com.konverza.auth.entity.User;
+import com.konverza.auth.repository.UserRepository;
 import com.konverza.scenarios.dto.ScenarioExpressRequest;
 import com.konverza.scenarios.dto.ScenarioRequest;
 import com.konverza.scenarios.entity.Scenario;
@@ -13,10 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.Map;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -36,6 +41,8 @@ class ScenarioRbacTest {
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
     @Autowired ScenarioRepository scenarioRepository;
+    @Autowired UserRepository userRepository;
+    @Autowired PasswordEncoder passwordEncoder;
 
     private ScenarioRequest buildRequest(String name) {
         ScenarioRequest req = new ScenarioRequest();
@@ -57,14 +64,36 @@ class ScenarioRbacTest {
         req.setProductDescription("CRM para ventas B2B");
         req.setPriceRange("$500-$1000/mes");
         req.setKeyDifferentiator("Integración nativa con WhatsApp");
-        req.setOwnerName("Vendedor de prueba");
         return req;
     }
 
     private UUID existingScenarioId() {
-        return scenarioRepository.findAll().stream().findFirst()
+        return scenarioRepository.findAll().stream()
+                .filter(s -> "MANUAL".equals(s.getCreatedBy()))
+                .findFirst()
                 .map(Scenario::getId)
                 .orElseThrow(() -> new IllegalStateException("DataSeeder should have seeded at least one scenario"));
+    }
+
+    private static final String PASSWORD = "correct-horse-battery";
+
+    /** Real login (not @WithMockUser) — CurrentUser.id() must resolve to a real, matchable UUID for own-scenario ownership checks. */
+    private String seedUserAndLogin(String email, User.Role role) throws Exception {
+        userRepository.findByEmailIgnoreCase(email).ifPresentOrElse(
+                existing -> {},
+                () -> userRepository.save(User.builder()
+                        .email(email)
+                        .passwordHash(passwordEncoder.encode(PASSWORD))
+                        .role(role)
+                        .enabled(true)
+                        .build())
+        );
+        MvcResult result = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("email", email, "password", PASSWORD))))
+                .andExpect(status().isOk())
+                .andReturn();
+        return objectMapper.readTree(result.getResponse().getContentAsString()).get("accessToken").asText();
     }
 
     @Test
@@ -161,18 +190,24 @@ class ScenarioRbacTest {
     /**
      * PUT /api/scenarios/{id} is shared by the Detallado edit screen (ADMIN)
      * and the Express review "Guardar" step (EMPLOYEE) — ScenarioService.update
-     * enforces per-scenario ownership by origin (createdBy), on top of the
-     * role gate on the endpoint itself.
+     * enforces per-scenario ownership by origin (createdBy) plus real-creator
+     * matching (scenario-privacy-and-lifecycle), on top of the role gate on
+     * the endpoint itself. Uses a real login, not @WithMockUser, because
+     * ownership now matches against the real authenticated user's id.
      */
     @Test
-    @WithMockUser(roles = "EMPLOYEE")
     @DisplayName("EMPLOYEE can save their own Express-created scenario")
     void update_ownExpressScenario_asEmployee_returns200() throws Exception {
+        String email = "rbac-express-owner@konverza.com";
+        String token = seedUserAndLogin(email, User.Role.EMPLOYEE);
+        User owner = userRepository.findByEmailIgnoreCase(email).orElseThrow();
+
         Scenario expressScenario = scenarioRepository.save(Scenario.builder()
                 .name("Borrador express").clientPersona(Scenario.ClientPersona.ANGRY)
-                .difficulty(Scenario.Difficulty.EASY).createdBy("EXPRESS_AI").build());
+                .difficulty(Scenario.Difficulty.EASY).createdBy("EXPRESS_AI").createdByUser(owner).build());
 
         mockMvc.perform(put("/api/scenarios/" + expressScenario.getId())
+                        .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(buildRequest("Borrador actualizado"))))
                 .andExpect(status().isOk())

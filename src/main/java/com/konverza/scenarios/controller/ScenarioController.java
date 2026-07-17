@@ -3,6 +3,7 @@ package com.konverza.scenarios.controller;
 import com.konverza.scenarios.dto.RegenerateSectionRequest;
 import com.konverza.scenarios.dto.ScenarioExpressRequest;
 import com.konverza.scenarios.dto.ScenarioRequest;
+import com.konverza.scenarios.dto.SetEnabledRequest;
 import com.konverza.scenarios.entity.Scenario;
 import com.konverza.scenarios.service.ScenarioExpressService;
 import com.konverza.scenarios.service.ScenarioService;
@@ -72,4 +73,11 @@ public class ScenarioController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Elimina escenario")
     public void delete(@PathVariable UUID id) { scenarioService.delete(id); }
+
+    @PatchMapping("/{id}/enabled")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Activa o desactiva un Escenario Completo")
+    public Scenario setEnabled(@PathVariable UUID id, @Valid @RequestBody SetEnabledRequest req) {
+        return scenarioService.setEnabled(id, req.isEnabled());
+    }
 }

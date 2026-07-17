@@ -10,6 +10,8 @@ import com.konverza.auth.exception.UserNotFoundException;
 import com.konverza.empresa.exception.EmpresaNotFoundException;
 import com.konverza.productos.exception.ProductoNotFoundException;
 import com.konverza.productos.exception.ServicioNotFoundException;
+import com.konverza.scenarios.exception.InvalidScenarioTypeException;
+import com.konverza.scenarios.exception.ScenarioNotFoundException;
 import com.konverza.sessions.exception.SessionNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +58,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleEmpresaNotFound(EmpresaNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ScenarioNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleScenarioNotFound(ScenarioNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidScenarioTypeException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidScenarioType(InvalidScenarioTypeException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", ex.getMessage(), "code", "INVALID_SCENARIO_TYPE"));
     }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)

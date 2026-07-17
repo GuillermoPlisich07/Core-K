@@ -17,5 +17,4 @@ public class ScenarioExpressRequest {
     @NotBlank private String productDescription;
     @NotBlank private String priceRange;
     @NotBlank private String keyDifferentiator;
-    @NotBlank private String ownerName;
 }
