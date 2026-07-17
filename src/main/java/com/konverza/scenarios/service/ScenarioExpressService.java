@@ -52,17 +52,15 @@ public class ScenarioExpressService {
 
         Scenario scenario = Scenario.builder()
                 .name(req.getName())
-                .industry(req.getIndustry())
+                .industries(req.getIndustries())
                 .clientPersona(req.getClientPersona())
                 .difficulty(req.getDifficulty())
                 .maxDurationMinutes(30)
                 .createdBy("EXPRESS_AI")
                 .createdByUser(owner)
                 .systemPrompt(asString(parsed, "system_prompt"))
-                .productContext(asString(parsed, "product_context"))
                 .objectionsGuide(toJsonString(parsed.get("objections_guide")))
                 .faq(toJsonString(parsed.get("faq")))
-                .paymentInfo(asString(parsed, "payment_info"))
                 .forbiddenPhrases(toJsonString(parsed.get("forbidden_phrases")))
                 .avatarVoiceId(asString(parsed, "avatar_voice_id"))
                 .build();
@@ -152,24 +150,24 @@ public class ScenarioExpressService {
                     Contexto del producto: %s
                     Devolvé SOLO el texto del system_prompt (sin JSON, sin markdown).
                     En español rioplatense (voseo). Mínimo 200 palabras.
-                    """.formatted(scenario.getClientPersona(), scenario.getDifficulty(), scenario.getProductContext());
+                    """.formatted(scenario.getClientPersona(), scenario.getDifficulty(), "");
             case "objections_guide" -> """
                     Generá 5 objeciones realistas para el siguiente escenario de ventas.
                     Tipo de cliente: %s. Producto/contexto: %s
                     Devolvé SOLO un JSON array (sin markdown):
                     [{"trigger":"...","objection":"...","hint":"..."}]
-                    """.formatted(scenario.getClientPersona(), scenario.getProductContext());
+                    """.formatted(scenario.getClientPersona(), "");
             case "faq" -> """
                     Generá 8 preguntas frecuentes para el siguiente escenario de ventas.
                     Producto/contexto: %s
                     Devolvé SOLO un JSON array (sin markdown):
                     [{"question":"...","answer":"..."}]
-                    """.formatted(scenario.getProductContext());
+                    """.formatted("");
             case "forbidden_phrases" -> """
                     Generá 6 frases que un vendedor inexperto NO debe decir al vender este producto.
                     Producto/contexto: %s. Tipo de cliente: %s.
                     Devolvé SOLO un JSON array de strings (sin markdown): ["frase1","frase2",...]
-                    """.formatted(scenario.getProductContext(), scenario.getClientPersona());
+                    """.formatted("", scenario.getClientPersona());
             default -> throw new IllegalArgumentException("Sección desconocida: " + section);
         };
     }

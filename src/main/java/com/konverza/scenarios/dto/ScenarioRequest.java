@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -15,13 +16,11 @@ public class ScenarioRequest {
     private String description;
     @NotNull private Scenario.ClientPersona clientPersona;
     @NotNull private Scenario.Difficulty difficulty;
-    private String productContext;
     private String systemPrompt;
     private String objectionsGuide;
-    private String paymentInfo;
     private String faq;
     private String avatarVoiceId;
-    private Industry industry;
+    private Set<Industry> industries;
     private Integer maxDurationMinutes;
     private String evaluationWeights;
     private String forbiddenPhrases;
