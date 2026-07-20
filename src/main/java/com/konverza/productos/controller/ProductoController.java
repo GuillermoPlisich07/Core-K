@@ -16,9 +16,8 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Gestión de productos — Administrador-only para escritura; Autoridad (EXEC)
- * puede ver pero no escribir; Vendedor (EMPLOYEE) no tiene acceso, ni de
- * lectura (add-rbac-permission-matrix — a diferencia de Escenarios, cuya
+ * puede ver pero no escribir; Vendedor (EMPLOYEE) puede leer para los 
+ * escenarios express (add-rbac-permission-matrix — a diferencia de Escenarios, cuya
  * lectura está abierta a los 3 roles).
  */
 @RestController
@@ -30,12 +29,12 @@ public class ProductoController {
     private final ProductoService productoService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','EXEC')")
+    @PreAuthorize("hasAnyRole('ADMIN','EXEC','EMPLOYEE')")
     @Operation(summary = "Lista todos los productos")
     public List<Producto> getAll() { return productoService.findAll(); }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','EXEC')")
+    @PreAuthorize("hasAnyRole('ADMIN','EXEC','EMPLOYEE')")
     @Operation(summary = "Retorna un producto")
     public Producto getById(@PathVariable UUID id) { return productoService.findById(id); }
 

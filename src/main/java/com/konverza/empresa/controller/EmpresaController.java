@@ -24,7 +24,7 @@ public class EmpresaController {
     private final EmpresaService empresaService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','EXEC')")
+    @PreAuthorize("hasAnyRole('ADMIN','EXEC','EMPLOYEE')")
     @Operation(summary = "Retorna el contexto de la empresa (404 si todavia no existe)")
     public Empresa get() { return empresaService.get(); }
 
