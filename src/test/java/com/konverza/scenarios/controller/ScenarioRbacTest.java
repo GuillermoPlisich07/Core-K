@@ -56,13 +56,10 @@ class ScenarioRbacTest {
     private ScenarioExpressRequest buildExpressRequest() {
         ScenarioExpressRequest req = new ScenarioExpressRequest();
         req.setName("Escenario express de prueba");
-        req.setIndustries(java.util.Set.of(Industry.SOFTWARE_B2B));
+        req.setDescription("Contexto de prueba");
         req.setClientPersona(Scenario.ClientPersona.DIFFICULT);
         req.setDifficulty(Scenario.Difficulty.MEDIUM);
-        req.setProductName("CRM");
-        req.setProductDescription("CRM para ventas B2B");
-        req.setPriceRange("$500-$1000/mes");
-        req.setKeyDifferentiator("Integración nativa con WhatsApp");
+        req.setProductoId(UUID.randomUUID());
         return req;
     }
 

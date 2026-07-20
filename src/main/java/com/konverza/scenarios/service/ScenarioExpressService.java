@@ -7,6 +7,11 @@ import com.konverza.auth.security.CurrentUser;
 import com.konverza.scenarios.dto.ScenarioExpressRequest;
 import com.konverza.scenarios.entity.Scenario;
 import com.konverza.scenarios.repository.ScenarioRepository;
+import com.konverza.productos.entity.Producto;
+import com.konverza.productos.repository.ProductoRepository;
+import com.konverza.productos.exception.ProductoNotFoundException;
+import com.konverza.empresa.entity.Empresa;
+import com.konverza.empresa.repository.EmpresaRepository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +23,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.HashSet;
 
 @Slf4j
 @Service
@@ -28,36 +34,56 @@ public class ScenarioExpressService {
     private final UserRepository userRepository;
     private final ScenarioService scenarioService;
     private final ObjectMapper objectMapper;
+    private final ProductoRepository productoRepository;
+    private final EmpresaRepository empresaRepository;
 
     public ScenarioExpressService(
             @Qualifier("groqClient") WebClient groqClient,
             ScenarioRepository scenarioRepository,
             UserRepository userRepository,
             ScenarioService scenarioService,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            ProductoRepository productoRepository,
+            EmpresaRepository empresaRepository) {
         this.groqClient = groqClient;
         this.scenarioRepository = scenarioRepository;
         this.userRepository = userRepository;
         this.scenarioService = scenarioService;
         this.objectMapper = objectMapper;
+        this.productoRepository = productoRepository;
+        this.empresaRepository = empresaRepository;
     }
 
     public Scenario generateAndSave(ScenarioExpressRequest req) {
-        String prompt = buildExpressGenerationPrompt(req);
-        String rawJson = callGroq(prompt);
-        Map<?, ?> parsed = parseWithRetry(prompt, rawJson);
+        Producto producto = productoRepository.findById(req.getProductoId())
+                .orElseThrow(() -> new ProductoNotFoundException(req.getProductoId()));
+        
+        Empresa empresa = empresaRepository.findAll().stream().findFirst().orElse(null);
 
         User owner = userRepository.findById(CurrentUser.id())
                 .orElseThrow(() -> new UserNotFoundException(CurrentUser.id()));
 
+        String vendedorName = (owner.getFirstName() + " " + owner.getLastName()).trim();
+        if (vendedorName.isEmpty()) vendedorName = "Vendedor";
+
+        String sellerRole = req.getVendedorRol() != null && !req.getVendedorRol().isBlank() ? req.getVendedorRol().trim() : "Representante de Ventas";
+
+        String prompt = buildExpressGenerationPrompt(req, producto, empresa, vendedorName, sellerRole);
+        String rawJson = callGroq(prompt);
+        Map<?, ?> parsed = parseWithRetry(prompt, rawJson);
+
         Scenario scenario = Scenario.builder()
                 .name(req.getName())
-                .industries(req.getIndustries())
+                .description(req.getDescription())
+                .industries(empresa != null ? new HashSet<>(empresa.getIndustries()) : new HashSet<>())
                 .clientPersona(req.getClientPersona())
                 .difficulty(req.getDifficulty())
-                .maxDurationMinutes(30)
+                .maxDurationMinutes(15)
                 .createdBy("EXPRESS_AI")
                 .createdByUser(owner)
+                .vendedorRol(sellerRole)
+                .empresa(empresa)
+                .producto(producto)
                 .systemPrompt(asString(parsed, "system_prompt"))
                 .objectionsGuide(toJsonString(parsed.get("objections_guide")))
                 .faq(toJsonString(parsed.get("faq")))
@@ -97,14 +123,18 @@ public class ScenarioExpressService {
         return sanitized;
     }
 
-    private String buildExpressGenerationPrompt(ScenarioExpressRequest req) {
+    private String buildExpressGenerationPrompt(ScenarioExpressRequest req, Producto producto, Empresa empresa, String vendedorName, String vendedorRol) {
+        String empresaName = (empresa != null) ? empresa.getName() : "Tu Empresa";
+        
         return """
                 Sos un experto en entrenamiento de vendedores para el mercado uruguayo y argentino.
                 Generá el contenido de un escenario de roleplay para entrenamiento de ventas.
 
                 Parámetros del escenario:
+                - Empresa: %s
+                - Vendedor: %s (Rol del vendedor: %s)
                 - Producto/servicio: %s
-                - Descripción: %s
+                - Descripción del producto: %s
                 - Precio: %s
                 - Diferencial clave: %s
                 - Tipo de cliente: %s (ANGRY=muy enojado, DIFFICULT=difícil, INDIFFERENT=indiferente, DEMANDING=muy exigente)
@@ -136,8 +166,10 @@ public class ScenarioExpressService {
                 Todo en español rioplatense (Uruguay/Argentina).
                 Responde SOLO el JSON, sin texto adicional, sin markdown.
                 """.formatted(
-                req.getProductName(), req.getProductDescription(),
-                req.getPriceRange(), req.getKeyDifferentiator(),
+                empresaName, vendedorName, vendedorRol,
+                producto.getName(), producto.getDescription() != null ? producto.getDescription() : "",
+                producto.getPriceRange() != null ? producto.getPriceRange() : "",
+                producto.getKeyDifferentiator() != null ? producto.getKeyDifferentiator() : "",
                 req.getClientPersona(), req.getDifficulty(), req.getClientPersona()
         );
     }
