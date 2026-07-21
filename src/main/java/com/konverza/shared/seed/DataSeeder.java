@@ -85,7 +85,7 @@ public class DataSeeder implements CommandLineRunner {
 
     private List<Scenario> buildScenarios() {
         String defaultWeights = "{\"persuasion\":25,\"product_knowledge\":20,\"objection_handling\":25,\"fluency\":15,\"confidence\":15}";
-        // avatarVoiceId stores the Tavus Persona ID configured via TAVUS_PERSONA_* env vars
+        // avatarId stores the Tavus Persona ID configured via TAVUS_PERSONA_* env vars
         return List.of(
             Scenario.builder()
                 .name("Cliente enojado - Servicio de internet")
@@ -97,7 +97,7 @@ public class DataSeeder implements CommandLineRunner {
                 .systemPrompt("Sos Carlos Mendez, un cliente furioso de 45 anos. Llevas TRES DIAS sin internet y ya llamaste 5 veces al soporte sin solucion. Tu negocio depende del internet y perdiste plata por esto. Estas al borde de cancelar el contrato. Hablas en espanol rioplatense. Sos agresivo pero no grosero. Interrumpes al vendedor cuando da excusas. Si el vendedor te ofrece una solucion concreta (tecnico hoy, descuento real), bajas un poco la guardia. Nunca aceptes la primera oferta. Exigi compensacion por los dias sin servicio.")
                 .objectionsGuide("{\"objections\": [\"Tres dias sin internet y nadie me llamo\", \"El soporte tecnico es una porqueria\", \"Me voy a otra empresa\"]}")
                 .faq("{\"preguntas\": [\"Cuando me arreglan el servicio?\", \"Tienen algun descuento por la interrupcion?\"]}")
-                .avatarVoiceId("TAVUS_PERSONA_ID_PLACEHOLDER")
+                .avatarId("TAVUS_PERSONA_ID_PLACEHOLDER")
                 .evaluationWeights(defaultWeights)
                 .forbiddenPhrases("[\"lo que pasa es que\",\"entiendo su frustraciÃ³n pero\",\"no es culpa nuestra\",\"eso no depende de mÃ­\",\"el sistema no me deja\",\"hable con otro departamento\"]")
                 .vendedorRol("Agente de Soporte y RetenciÃ³n")
@@ -115,7 +115,7 @@ public class DataSeeder implements CommandLineRunner {
                 .systemPrompt("Sos Roberto Paz, dueno de una ferreteria con 15 empleados. Tenes 58 anos y no sos muy tecnologico. Tu negocio funciona bien con planillas y papel. No ves para que cambiar lo que funciona. Hablas en espanol rioplatense. Sos educado pero desinteresado. Respondes con monosilabos si no te convencen. Si el vendedor te muestra un beneficio muy concreto en pesos (ahorro de tiempo = plata), prestas mas atencion. Tu mayor miedo es que el sistema falle justo en epoca de inventario.")
                 .objectionsGuide("{\"objections\": [\"Nosotros con planillas de Excel nos manejamos re bien\", \"No tengo tiempo para aprender software nuevo\", \"Es muy caro para lo que ofrece\"]}")
                 .faq("{\"preguntas\": [\"Tiene integracion con AFIP?\", \"Puedo migrar mis datos de Excel?\"]}")
-                .avatarVoiceId("TAVUS_PERSONA_ID_PLACEHOLDER")
+                .avatarId("TAVUS_PERSONA_ID_PLACEHOLDER")
                 .evaluationWeights(defaultWeights)
                 .forbiddenPhrases("[\"todo el mundo lo usa\",\"es muy fÃ¡cil\",\"en cinco minutos lo aprendÃ©s\",\"esto lo maneja hasta un nene\",\"no tiene pÃ©rdida\",\"no hay nada que aprender\"]")
                 .vendedorRol("SDR â€” Sales Development Representative")
@@ -133,7 +133,7 @@ public class DataSeeder implements CommandLineRunner {
                 .systemPrompt("Sos Valeria Torres, Directora de RRHH de una empresa de 200 personas. Sos MBA, muy analitica y exigente. Hablas en espanol rioplatense. Haces preguntas dificiles sobre metodologia, tiempos y metricas. Esperas respuestas concretas con numeros. Si el vendedor es vago, lo presionas mas. Tuviste una mala experiencia con una consultora anterior que prometio mucho y entrego poco. Solo cerras si el vendedor puede darte casos de exito verificables y un cronograma detallado.")
                 .objectionsGuide("{\"objections\": [\"Que ROI concreto me garantizan?\", \"Necesito metricas claras antes de contratar\", \"Tuvimos una consultora antes y fue un fracaso\"]}")
                 .faq("{\"preguntas\": [\"Cuanto tiempo lleva el proceso de seleccion?\", \"Tienen experiencia en mi industria?\"]}")
-                .avatarVoiceId("TAVUS_PERSONA_ID_PLACEHOLDER")
+                .avatarId("TAVUS_PERSONA_ID_PLACEHOLDER")
                 .evaluationWeights("{\"persuasion\":20,\"product_knowledge\":25,\"objection_handling\":30,\"fluency\":10,\"confidence\":15}")
                 .forbiddenPhrases("[\"confÃ­e en nosotros\",\"somos los mejores del mercado\",\"todos nuestros clientes estÃ¡n felices\",\"eso lo podemos ver despuÃ©s\",\"no se preocupe por eso\",\"es un estÃ¡ndar de la industria\"]")
                 .vendedorRol("Account Executive")
@@ -151,7 +151,7 @@ public class DataSeeder implements CommandLineRunner {
                 .systemPrompt("Sos Marcelo Gimenez, inversor particular de 52 anos. Perdiste dinero en 2001 y con una financiera en 2019. Desconfias de todos los productos financieros. Hablas en espanol rioplatense. Haces preguntas tecnicas sobre regulacion, garantias y riesgo. Buscas contradicciones en lo que dice el vendedor. Si el vendedor menciona la CNV, BCRA o garantias concretas, bajas un poco la guardia. Necesitas sentir que el vendedor entiende tus miedos antes de considerar invertir.")
                 .objectionsGuide("{\"objections\": [\"Ya me estafaron con un fondo parecido\", \"Esta regulado por la CNV?\", \"El plazo fijo me da mas tranquilidad\"]}")
                 .faq("{\"preguntas\": [\"Que pasa si necesito el dinero antes?\", \"Esta garantizado el capital?\"]}")
-                .avatarVoiceId("TAVUS_PERSONA_ID_PLACEHOLDER")
+                .avatarId("TAVUS_PERSONA_ID_PLACEHOLDER")
                 .evaluationWeights(defaultWeights)
                 .forbiddenPhrases("[\"garantizado al 100%\",\"no hay riesgo\",\"imposible perder\",\"todos invierten en esto\",\"el gobierno lo respalda\",\"yo tambiÃ©n invierto aquÃ­\"]")
                 .vendedorRol("Asesor de Inversiones / Wealth Manager")

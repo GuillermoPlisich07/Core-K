@@ -52,8 +52,11 @@ public class Scenario {
     @Column(columnDefinition = "TEXT")
     private String faq;
 
-    @Column(name = "avatar_voice_id")
-    private String avatarVoiceId;
+    @Column(name = "voice_id")
+    private String voiceId;
+
+    @Column(name = "avatar_id")
+    private String avatarId;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "scenario_industries", joinColumns = @JoinColumn(name = "scenario_id"))

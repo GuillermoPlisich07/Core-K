@@ -91,7 +91,7 @@ public class ScenarioService {
                 .clientPersona(req.getClientPersona()).difficulty(req.getDifficulty())
                 .systemPrompt(req.getSystemPrompt())
                 .objectionsGuide(req.getObjectionsGuide())
-                .faq(req.getFaq()).avatarVoiceId(req.getAvatarVoiceId())
+                .faq(req.getFaq()).voiceId(req.getVoiceId()).avatarId(req.getAvatarId())
                 .industries(req.getIndustries())
                 .maxDurationMinutes(req.getMaxDurationMinutes() != null ? req.getMaxDurationMinutes() : 30)
                 .evaluationWeights(req.getEvaluationWeights())
@@ -122,7 +122,7 @@ public class ScenarioService {
         s.setClientPersona(req.getClientPersona()); s.setDifficulty(req.getDifficulty());
         s.setSystemPrompt(req.getSystemPrompt());
         s.setObjectionsGuide(req.getObjectionsGuide());
-        s.setFaq(req.getFaq()); s.setAvatarVoiceId(req.getAvatarVoiceId());
+        s.setFaq(req.getFaq()); s.setVoiceId(req.getVoiceId()); s.setAvatarId(req.getAvatarId());
         s.setIndustries(req.getIndustries());
         if (req.getMaxDurationMinutes() != null) s.setMaxDurationMinutes(req.getMaxDurationMinutes());
         s.setEvaluationWeights(req.getEvaluationWeights());
