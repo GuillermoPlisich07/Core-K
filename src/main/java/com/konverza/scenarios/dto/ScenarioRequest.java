@@ -19,7 +19,8 @@ public class ScenarioRequest {
     private String systemPrompt;
     private String objectionsGuide;
     private String faq;
-    private String avatarVoiceId;
+    private String voiceId;
+    private String avatarId;
     private Set<Industry> industries;
     private Integer maxDurationMinutes;
     private String evaluationWeights;

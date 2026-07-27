@@ -88,7 +88,8 @@ public class ScenarioExpressService {
                 .objectionsGuide(toJsonString(parsed.get("objections_guide")))
                 .faq(toJsonString(parsed.get("faq")))
                 .forbiddenPhrases(toJsonString(parsed.get("forbidden_phrases")))
-                .avatarVoiceId(asString(parsed, "avatar_voice_id"))
+                .voiceId(asString(parsed, "voice_id"))
+                .avatarId(asString(parsed, "avatar_id"))
                 .build();
 
         return scenarioRepository.save(scenario);
