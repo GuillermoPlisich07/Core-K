@@ -142,4 +142,30 @@ class SessionAuthIntegrationTest {
                         .header("X-Service-Key", "wrong-key"))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    @DisplayName("PUT /api/sessions/{id}/complete accepts a valid X-Service-Key")
+    void completeSession_withValidServiceKey_returns200() throws Exception {
+        String accessToken = loginAndGetAccessToken();
+        MvcResult createResult = mockMvc.perform(post("/api/sessions")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "scenarioId", scenarioId.toString(),
+                                "vendorName", "Juan"
+                        ))))
+                .andExpect(status().isCreated())
+                .andReturn();
+        String sessionId = objectMapper.readTree(createResult.getResponse().getContentAsString()).get("id").asText();
+
+        mockMvc.perform(put("/api/sessions/" + sessionId + "/complete")
+                        .header("X-Service-Key", AI_SERVICE_API_KEY)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "durationSeconds", 60,
+                                "totalTurns", 2,
+                                "transcript", java.util.List.of()
+                        ))))
+                .andExpect(status().isOk());
+    }
 }
