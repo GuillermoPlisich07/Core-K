@@ -20,6 +20,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Controla el ciclo de vida de las sesiones de entrenamiento.
+ *
+ * Roles de usuario humanos (User.Role):
+ * - EMPLOYEE (Empleado/Vendedor): Crea e inicia simulaciones; ve solo sus propios reportes.
+ * - ADMIN (Administrador): Crea simulaciones; ve todas las sesiones y reportes.
+ * - EXEC (Ejecutivo/Autoridad): No crea simulaciones por regla de negocio; supervisa reportes y dashboards.
+ *
+ * Rol de infraestructura / sistema (M2M):
+ * - SERVICE (ROLE_SERVICE): Asignado a AI-Service-k mediante X-Service-Key para completar la sesión y sincronizar métricas.
+ */
 @RestController
 @RequestMapping("/api/sessions")
 @RequiredArgsConstructor
@@ -45,8 +56,12 @@ public class SessionController {
     @Operation(summary = "Detalle de una sesion")
     public Session getById(@PathVariable UUID id) { return sessionService.findById(id); }
 
+    /**
+     * Permite completar una sesión y desencadenar la generación del reporte.
+     * Permitido para EMPLOYEE/ADMIN (fallback usuario) y SERVICE (AI-Service-k vía X-Service-Key).
+     */
     @PutMapping("/{id}/complete")
-    @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN')")
+    @PreAuthorize("hasAnyRole('EMPLOYEE','ADMIN','SERVICE')")
     @Operation(summary = "Completa sesion y genera reporte")
     public Session complete(@PathVariable UUID id, @Valid @RequestBody SessionCompleteRequest req) {
         return sessionService.completeSession(id, req);
