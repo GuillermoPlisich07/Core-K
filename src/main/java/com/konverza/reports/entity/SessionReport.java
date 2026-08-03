@@ -152,6 +152,9 @@ public class SessionReport {
     @Column(name = "turn_suggestions", columnDefinition = "TEXT")
     private String turnSuggestions;
 
+    @Column(name = "simulation_events", columnDefinition = "TEXT")
+    private String simulationEvents;
+
     @CreationTimestamp
     @Column(name = "generated_at", updatable = false)
     private LocalDateTime generatedAt;

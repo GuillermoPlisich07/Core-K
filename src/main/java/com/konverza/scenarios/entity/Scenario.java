@@ -80,6 +80,11 @@ public class Scenario {
     @Column(name = "escenario_objetivo", columnDefinition = "TEXT")
     private String escenarioObjetivo;
 
+    @OneToMany(mappedBy = "scenario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("orderIndex ASC")
+    @Builder.Default
+    private java.util.List<ScenarioPhase> phases = new java.util.ArrayList<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "empresa_id")
     @com.fasterxml.jackson.annotation.JsonIgnore
@@ -225,6 +230,21 @@ public class Scenario {
 
         sb.append("<STRUCTURE>\n");
         sb.append("Interactúa turno a turno. Respuestas breves (1 a 3 oraciones), directas y naturales. Cero formato markdown (sin listas ni negritas). No des feedback al final, tu único rol es actuar.\n");
+        if (this.phases != null && Hibernate.isInitialized(this.phases) && !this.phases.isEmpty()) {
+            sb.append("\nEl vendedor debe guiar la reunión a través de las siguientes fases:\n");
+            for (ScenarioPhase phase : this.phases) {
+                sb.append("- Fase ").append(phase.getOrderIndex()).append(": ").append(phase.getName());
+                if (phase.getDescription() != null && !phase.getDescription().isBlank()) {
+                    sb.append(" (").append(phase.getDescription().trim()).append(")");
+                }
+                sb.append("\n");
+            }
+            sb.append("\nINSTRUCCIÓN CRÍTICA PARA FASES Y ALERTAS:\n");
+            sb.append("Debes monitorear en qué fase de la reunión se encuentra el vendedor basándote en su interacción.\n");
+            sb.append("Si el vendedor avanza exitosamente a la siguiente fase o cambia de fase, DEBES incluir exactamente este tag al FINAL de tu respuesta: <PHASE: N> donde N es el número de la fase actual a la que ha entrado (por ejemplo, <PHASE: 2>).\n");
+            sb.append("Si el vendedor se salta fases importantes, comete un error grave según las buenas prácticas (ej. dar el precio sin antes calificar), o usa una frase prohibida, DEBES emitir una alerta incluyendo este tag al FINAL de tu respuesta: <ALERT: descripción corta del error>.\n");
+            sb.append("Nota: Estos tags son internos y no se leerán en voz alta. Úsalos siempre que aplique.\n");
+        }
         sb.append("</STRUCTURE>\n\n");
 
         sb.append("<TONE>\n");

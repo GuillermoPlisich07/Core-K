@@ -92,6 +92,21 @@ public class ScenarioExpressService {
                 .avatarId(asString(parsed, "avatar_id"))
                 .build();
 
+        List<Map<String, Object>> phasesData = (List<Map<String, Object>>) parsed.get("phases");
+        if (phasesData != null) {
+            int order = 1;
+            for (Map<String, Object> pd : phasesData) {
+                com.konverza.scenarios.entity.ScenarioPhase phase = com.konverza.scenarios.entity.ScenarioPhase.builder()
+                        .name((String) pd.get("name"))
+                        .description((String) pd.get("description"))
+                        .estimatedTimeMinutes(pd.get("estimatedTimeMinutes") instanceof Number ? ((Number) pd.get("estimatedTimeMinutes")).intValue() : null)
+                        .orderIndex(order++)
+                        .scenario(scenario)
+                        .build();
+                scenario.getPhases().add(phase);
+            }
+        }
+
         return scenarioRepository.save(scenario);
     }
 
@@ -145,6 +160,9 @@ public class ScenarioExpressService {
                 {
                   "system_prompt": "Instrucción completa para el avatar que juega el rol del cliente. En español rioplatense (voseo). Debe incluir: personalidad, historia de fondo, motivaciones, cómo reacciona a diferentes situaciones. Mínimo 200 palabras.",
                   "product_context": "Contexto del producto que el vendedor puede usar. Info técnica, beneficios, casos de uso. Mínimo 150 palabras.",
+                  "phases": [
+                    { "name": "nombre de la fase (ej: Contacto)", "description": "descripción de lo que el vendedor debe hacer", "estimatedTimeMinutes": 3 }
+                  ],
                   "objections_guide": [
                     {
                       "trigger": "frase o situación que dispara la objeción",

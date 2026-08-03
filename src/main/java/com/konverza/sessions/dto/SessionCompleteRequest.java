@@ -15,4 +15,5 @@ public class SessionCompleteRequest {
     private String vendorName;
     private String scenarioName;
     private String ntcMetrics;  // JSON snapshot del Natural Turn Controller
+    private String simulationEvents; // JSON string with phase transitions and alerts
 }

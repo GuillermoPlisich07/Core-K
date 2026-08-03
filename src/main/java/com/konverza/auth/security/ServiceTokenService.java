@@ -29,7 +29,7 @@ public class ServiceTokenService {
     @Value("${service.jwt.secret}")
     private String serviceJwtSecret;
 
-    @Value("${service.jwt.delegated-token-expiration-ms:600000}")
+    @Value("${service.jwt.delegated-token-expiration-ms:7200000}")
     private long delegatedTokenExpirationMs;
 
     private SecretKey signingKey;

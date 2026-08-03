@@ -30,4 +30,5 @@ public class ScenarioRequest {
     private String escenarioObjetivo;
     private UUID empresaId;
     private UUID productoId;
+    private java.util.List<ScenarioPhaseRequest> phases;
 }

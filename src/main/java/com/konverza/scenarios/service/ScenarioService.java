@@ -38,9 +38,11 @@ public class ScenarioService {
      * another user's Escenario Rápido.
      */
     public List<Scenario> findAll() {
-        return scenarioRepository.findAll().stream()
+        List<Scenario> scenarios = scenarioRepository.findAll().stream()
                 .filter(this::isVisibleToCurrentUser)
                 .toList();
+        scenarios.forEach(s -> org.hibernate.Hibernate.initialize(s.getPhases()));
+        return scenarios;
     }
 
     private boolean isVisibleToCurrentUser(Scenario scenario) {
@@ -80,6 +82,7 @@ public class ScenarioService {
         }
         org.hibernate.Hibernate.initialize(scenario.getEmpresa());
         org.hibernate.Hibernate.initialize(scenario.getProducto());
+        org.hibernate.Hibernate.initialize(scenario.getPhases());
         return scenario;
     }
 
@@ -102,6 +105,7 @@ public class ScenarioService {
                 .build();
 
         resolveRelations(scenario, req);
+        mapPhases(scenario, req);
         return scenarioRepository.save(scenario);
     }
 
@@ -130,6 +134,7 @@ public class ScenarioService {
         s.setVendedorRol(req.getVendedorRol());
         s.setEscenarioObjetivo(req.getEscenarioObjetivo());
         resolveRelations(s, req);
+        mapPhases(s, req);
         return scenarioRepository.save(s);
     }
 
@@ -168,6 +173,22 @@ public class ScenarioService {
             productoRepository.findById(req.getProductoId()).ifPresent(scenario::setProducto);
         } else {
             scenario.setProducto(null);
+        }
+    }
+
+    private void mapPhases(Scenario scenario, ScenarioRequest req) {
+        scenario.getPhases().clear();
+        if (req.getPhases() != null) {
+            for (com.konverza.scenarios.dto.ScenarioPhaseRequest pReq : req.getPhases()) {
+                com.konverza.scenarios.entity.ScenarioPhase phase = com.konverza.scenarios.entity.ScenarioPhase.builder()
+                        .name(pReq.getName())
+                        .description(pReq.getDescription())
+                        .orderIndex(pReq.getOrderIndex())
+                        .estimatedTimeMinutes(pReq.getEstimatedTimeMinutes())
+                        .scenario(scenario)
+                        .build();
+                scenario.getPhases().add(phase);
+            }
         }
     }
 }
