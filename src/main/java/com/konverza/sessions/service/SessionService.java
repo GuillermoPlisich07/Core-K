@@ -167,10 +167,12 @@ public class SessionService {
         final String biometricSummary = req.getBiometricSummary();
         final String vendorName = req.getVendorName();
         final String scenarioName = req.getScenarioName();
+        final String simulationEvents = req.getSimulationEvents();
         Thread.ofVirtual().start(() ->
             reportGenerationService.generateReport(
                 session, savedTranscripts, savedBiometrics, finalPron,
-                verbalAnalysis, biometricSummary, vendorName, scenarioName
+                verbalAnalysis, biometricSummary, vendorName, scenarioName,
+                simulationEvents
             )
         );
         return session;

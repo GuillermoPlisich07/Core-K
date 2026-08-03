@@ -36,7 +36,8 @@ public class ReportGenerationService {
             String verbalAnalysisJson,
             String biometricSummaryJson,
             String vendorName,
-            String scenarioName) {
+            String scenarioName,
+            String simulationEvents) {
         try {
             String prompt = buildPrompt(session, transcripts, biometrics, pronunciation,
                     verbalAnalysisJson, biometricSummaryJson, vendorName, scenarioName);
@@ -56,7 +57,7 @@ public class ReportGenerationService {
             }
 
             SessionReport report = parseAndSaveReport(session, rawJson,
-                    verbalAnalysisJson, biometricSummaryJson, vendorName, scenarioName, turnSuggestionsJson);
+                    verbalAnalysisJson, biometricSummaryJson, vendorName, scenarioName, turnSuggestionsJson, simulationEvents);
             updateOverallScore(session, report);
         } catch (Exception e) {
             log.error("Error generando reporte para sesion {}: {}", session.getId(), e.getMessage());
@@ -279,7 +280,7 @@ public class ReportGenerationService {
             Session session, String rawJson,
             String verbalAnalysis, String biometricSummary,
             String vendorName, String scenarioName,
-            String turnSuggestionsJson) throws Exception {
+            String turnSuggestionsJson, String simulationEvents) throws Exception {
         Map<?, ?> d = objectMapper.readValue(rawJson, Map.class);
 
         // Extraer métricas verbales del JSON de análisis
@@ -366,6 +367,7 @@ public class ReportGenerationService {
                 .productTermsCoverage(productTermsCov)
                 // Sugerencias por turno
                 .turnSuggestions(turnSuggestionsJson)
+                .simulationEvents(simulationEvents)
                 .build();
         return reportRepository.save(report);
     }
