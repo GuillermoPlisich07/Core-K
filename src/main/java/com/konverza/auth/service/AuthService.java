@@ -100,6 +100,9 @@ public class AuthService {
                 .email(user.getEmail())
                 .role(user.getRole().name().toLowerCase())
                 .profileCompleted(user.isProfileCompleted())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .avatarUrl(user.getAvatarUrl())
                 .build();
         return new AuthResult(response, refreshToken);
     }
