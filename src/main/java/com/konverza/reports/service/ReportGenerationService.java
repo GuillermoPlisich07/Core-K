@@ -9,8 +9,8 @@ import com.konverza.sessions.entity.Transcript;
 import com.konverza.sessions.repository.SessionRepository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -20,13 +20,32 @@ import java.util.*;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ReportGenerationService {
 
+    private final WebClient deepSeekClient;
     private final WebClient groqClient;
     private final SessionReportRepository reportRepository;
     private final SessionRepository sessionRepository;
     private final ObjectMapper objectMapper;
+
+    @org.springframework.beans.factory.annotation.Value("${DEEPSEEK_MODEL:deepseek-chat}")
+    private String deepSeekModel;
+
+    @org.springframework.beans.factory.annotation.Value("${GROQ_MODEL:openai/gpt-oss-120b}")
+    private String groqModel;
+
+    public ReportGenerationService(
+            @Qualifier("deepSeekClient") WebClient deepSeekClient,
+            @Qualifier("groqClient") WebClient groqClient,
+            SessionReportRepository reportRepository,
+            SessionRepository sessionRepository,
+            ObjectMapper objectMapper) {
+        this.deepSeekClient = deepSeekClient;
+        this.groqClient = groqClient;
+        this.reportRepository = reportRepository;
+        this.sessionRepository = sessionRepository;
+        this.objectMapper = objectMapper;
+    }
 
     public void generateReport(
             Session session,
@@ -242,8 +261,40 @@ public class ReportGenerationService {
     }
 
     private String callGroq(String prompt) {
+        // 1. Intentar con la API de DeepSeek primero
+        try {
+            log.info("Llamando a la API de DeepSeek para reporte...");
+            Map<String, Object> deepSeekBody = Map.of(
+                "model", deepSeekModel,
+                "messages", List.of(Map.of("role", "user", "content", prompt)),
+                "temperature", 0.7,
+                "max_tokens", 1500,
+                "response_format", Map.of("type", "json_object")
+            );
+            Map<?, ?> response = deepSeekClient.post()
+                    .uri("/chat/completions")
+                    .bodyValue(deepSeekBody)
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+            if (response != null && response.containsKey("choices")) {
+                List<?> choices = (List<?>) response.get("choices");
+                if (choices != null && !choices.isEmpty()) {
+                    Map<?, ?> message = (Map<?, ?>) ((Map<?, ?>) choices.get(0)).get("message");
+                    if (message != null && message.get("content") != null) {
+                        log.info("Respuesta obtenida exitosamente desde la API de DeepSeek.");
+                        return (String) message.get("content");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Llamada a la API de DeepSeek falló ({}). Iniciando fallback a la API de Groq...", e.getMessage());
+        }
+
+        // 2. Fallback a la API de Groq si DeepSeek falla
+        log.info("Llamando a la API de Groq (fallback)...");
         Map<String, Object> body = Map.of(
-            "model", "openai/gpt-oss-120b",
+            "model", groqModel,
             "messages", List.of(Map.of("role", "user", "content", prompt)),
             "temperature", 0.7,
             "max_tokens", 1500,
@@ -273,7 +324,7 @@ public class ReportGenerationService {
                 }
             }
         }
-        throw new RuntimeException("Groq no disponible: " + (lastError != null ? lastError.getMessage() : "unknown"));
+        throw new RuntimeException("Ni DeepSeek ni Groq están disponibles: " + (lastError != null ? lastError.getMessage() : "unknown"));
     }
 
     private SessionReport parseAndSaveReport(
