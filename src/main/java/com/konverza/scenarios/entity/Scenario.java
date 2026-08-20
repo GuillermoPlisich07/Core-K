@@ -80,7 +80,7 @@ public class Scenario {
     @Column(name = "escenario_objetivo", columnDefinition = "TEXT")
     private String escenarioObjetivo;
 
-    @OneToMany(mappedBy = "scenario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "scenario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @OrderBy("orderIndex ASC")
     @Builder.Default
     private java.util.List<ScenarioPhase> phases = new java.util.ArrayList<>();
