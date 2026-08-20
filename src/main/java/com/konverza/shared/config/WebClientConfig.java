@@ -14,6 +14,9 @@ public class WebClientConfig {
     @Value("${GROQ_API_KEY:}")
     private String groqApiKey;
 
+    @Value("${DEEPSEEK_API_KEY:}")
+    private String deepSeekApiKey;
+
     @Value("${FASTAPI_URL:http://localhost:8000}")
     private String fastApiUrl;
 
@@ -26,6 +29,16 @@ public class WebClientConfig {
         return WebClient.builder()
                 .baseUrl("https://api.openai.com/v1")
                 .defaultHeader("Authorization", "Bearer " + openAiApiKey)
+                .defaultHeader("Content-Type", "application/json")
+                .codecs(c -> c.defaultCodecs().maxInMemorySize(2 * 1024 * 1024))
+                .build();
+    }
+
+    @Bean("deepSeekClient")
+    public WebClient deepSeekClient() {
+        return WebClient.builder()
+                .baseUrl("https://api.deepseek.com/v1")
+                .defaultHeader("Authorization", "Bearer " + deepSeekApiKey)
                 .defaultHeader("Content-Type", "application/json")
                 .codecs(c -> c.defaultCodecs().maxInMemorySize(2 * 1024 * 1024))
                 .build();

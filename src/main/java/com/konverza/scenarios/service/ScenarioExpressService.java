@@ -29,6 +29,7 @@ import java.util.HashSet;
 @Service
 public class ScenarioExpressService {
 
+    private final WebClient deepSeekClient;
     private final WebClient groqClient;
     private final ScenarioRepository scenarioRepository;
     private final UserRepository userRepository;
@@ -37,7 +38,14 @@ public class ScenarioExpressService {
     private final ProductoRepository productoRepository;
     private final EmpresaRepository empresaRepository;
 
+    @org.springframework.beans.factory.annotation.Value("${DEEPSEEK_MODEL:deepseek-chat}")
+    private String deepSeekModel;
+
+    @org.springframework.beans.factory.annotation.Value("${GROQ_MODEL:openai/gpt-oss-120b}")
+    private String groqModel;
+
     public ScenarioExpressService(
+            @Qualifier("deepSeekClient") WebClient deepSeekClient,
             @Qualifier("groqClient") WebClient groqClient,
             ScenarioRepository scenarioRepository,
             UserRepository userRepository,
@@ -45,6 +53,7 @@ public class ScenarioExpressService {
             ObjectMapper objectMapper,
             ProductoRepository productoRepository,
             EmpresaRepository empresaRepository) {
+        this.deepSeekClient = deepSeekClient;
         this.groqClient = groqClient;
         this.scenarioRepository = scenarioRepository;
         this.userRepository = userRepository;
@@ -224,8 +233,40 @@ public class ScenarioExpressService {
     }
 
     private String callGroq(String prompt) {
+        // 1. Intentar con la API de DeepSeek primero
+        try {
+            log.info("Llamando a la API de DeepSeek para generar escenario...");
+            Map<String, Object> deepSeekBody = Map.of(
+                    "model", deepSeekModel,
+                    "messages", List.of(Map.of("role", "user", "content", prompt)),
+                    "temperature", 0.8,
+                    "max_tokens", 2000,
+                    "response_format", Map.of("type", "json_object")
+            );
+            Map<?, ?> response = deepSeekClient.post()
+                    .uri("/chat/completions")
+                    .bodyValue(deepSeekBody)
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+            if (response != null && response.containsKey("choices")) {
+                List<?> choices = (List<?>) response.get("choices");
+                if (choices != null && !choices.isEmpty()) {
+                    Map<?, ?> message = (Map<?, ?>) ((Map<?, ?>) choices.get(0)).get("message");
+                    if (message != null && message.get("content") != null) {
+                        log.info("Generación con DeepSeek exitosa.");
+                        return ((String) message.get("content")).trim();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Llamada a DeepSeek falló ({}). Pasando a la API de Groq como fallback...", e.getMessage());
+        }
+
+        // 2. Fallback a la API de Groq si DeepSeek falla
+        log.info("Llamando a la API de Groq (fallback)...");
         Map<String, Object> body = Map.of(
-                "model", "openai/gpt-oss-120b",
+                "model", groqModel,
                 "messages", List.of(Map.of("role", "user", "content", prompt)),
                 "temperature", 0.8,
                 "max_tokens", 2000
@@ -254,7 +295,7 @@ public class ScenarioExpressService {
                 }
             }
         }
-        throw new RuntimeException("Groq no disponible: " + (lastError != null ? lastError.getMessage() : "error desconocido"));
+        throw new RuntimeException("Ni DeepSeek ni Groq están disponibles: " + (lastError != null ? lastError.getMessage() : "error desconocido"));
     }
 
     @SuppressWarnings("unchecked")
