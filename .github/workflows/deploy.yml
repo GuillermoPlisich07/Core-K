@@ -19,4 +19,4 @@ jobs:
             cd ~/konverza/spring-boot
             git pull origin main
             cd ~/konverza/Infra-K
-            docker compose up -d --build spring-boot
+            docker compose up -d --build --force-recreate --remove-orphans spring-boot
